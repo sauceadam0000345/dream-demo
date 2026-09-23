@@ -1,0 +1,32 @@
+{
+  "application_summary": {
+    "filename": "flowershop.apk",
+    "name": "Flower Shop",
+    "version": "1.4.2"
+  },
+  "automation_backend": "appium",
+  "build": "webhook-demo-193042",
+  "consolidated_status": "complete",
+  "creation_time": 1758300000000,
+  "device_descriptor": {
+    "id": "Google_Pixel_8_real_sjc1",
+    "name": "Google Pixel 8",
+    "os": "ANDROID",
+    "osVersion": "14"
+  },
+  "device_name": "Google Pixel 8",
+  "device_type": "real_device",
+  "end_time": 1758300137000,
+  "error": null,
+  "id": "9c1d55aa27f04a1e8f2b6d3c7e809a41",
+  "manual": false,
+  "name": "test_checkout_payment_declined — AssertionError: Expected checkout confirmation screen but found error banner 'Payment declined'",
+  "os": "Android",
+  "os_version": "14",
+  "owner_sauce": "adam.toth-fejel",
+  "passed": false,
+  "start_time": 1758300000000,
+  "status": "complete",
+  "tags": ["failure:AssertionError: Expected checkout confirmation screen but found error banner 'Payment declined'"],
+  "test_report_type": "APPIUM"
+}

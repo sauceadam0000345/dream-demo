@@ -1,0 +1,13 @@
+{
+  "id": "aa11bb22cc33dd44ee55ff6677889900",
+  "status": "ERRORED",
+  "passed": false,
+  "name": "test_checkout_complete_purchase",
+  "os_name": "Android",
+  "os_version": "14.0",
+  "device": "Google Pixel 8",
+  "tags": ["checkout"],
+  "error": "Could not allocate a matching device within the timeout period",
+  "build": "release-2026.09.19-build-483",
+  "data_type": "rdc"
+}

@@ -1,0 +1,25 @@
+name: Sauce -> Linear tests
+
+on:
+  push:
+    paths: ["pipedream/**", ".github/workflows/sauce-poller.yml", ".github/workflows/pipedream-tests.yml"]
+  pull_request:
+    paths: ["pipedream/**", ".github/workflows/sauce-poller.yml", ".github/workflows/pipedream-tests.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: pipedream
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test

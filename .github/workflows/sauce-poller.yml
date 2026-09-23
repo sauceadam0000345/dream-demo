@@ -1,0 +1,59 @@
+# Sauce Labs -> Linear: poll the Sauce API for failed real-device jobs and file
+# or update Linear issues. Replaces the Pipedream webhook workflow.
+#
+# Setup (repo Settings -> Secrets and variables -> Actions):
+#   Secrets:   SAUCE_USERNAME, SAUCE_ACCESS_KEY, LINEAR_API_KEY, LINEAR_TEAM_ID
+#   Variables (optional): SAUCE_REGION, SAUCE_LOOKBACK_MINUTES, SAUCE_FLAKY_TAGS, LINEAR_ISSUE_LABELS
+#
+# Scheduled runs only fire from the default branch, and GitHub may start them
+# late or drop one under load - the 30-minute lookback covers that. Overlapping
+# windows are safe: each Linear issue remembers the Sauce job ids it has counted.
+name: Sauce -> Linear poller
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: triage and print only, write nothing to Linear"
+        type: boolean
+        default: true
+      lookback_minutes:
+        description: "How many minutes back to look (e.g. 1440 = last day)"
+        type: string
+        default: "30"
+
+# One poll at a time, so two runs never race on the same failure.
+concurrency:
+  group: sauce-poller
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: pipedream
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Poll Sauce and update Linear
+        run: node pipedream/sauce-poller.mjs
+        env:
+          SAUCE_USERNAME: ${{ secrets.SAUCE_USERNAME }}
+          SAUCE_ACCESS_KEY: ${{ secrets.SAUCE_ACCESS_KEY }}
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          LINEAR_TEAM_ID: ${{ secrets.LINEAR_TEAM_ID }}
+          SAUCE_REGION: ${{ vars.SAUCE_REGION }}
+          SAUCE_LOOKBACK_MINUTES: ${{ inputs.lookback_minutes || vars.SAUCE_LOOKBACK_MINUTES }}
+          SAUCE_FLAKY_TAGS: ${{ vars.SAUCE_FLAKY_TAGS }}
+          LINEAR_ISSUE_LABELS: ${{ vars.LINEAR_ISSUE_LABELS }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}

@@ -1,0 +1,11 @@
+{
+  "name": "sauce-to-linear-pipedream",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Sauce Labs -> Linear defect automation: the Pipedream webhook step, the GitHub Actions poller, and offline tests.",
+  "scripts": {
+    "test": "node --test test/run-tests.mjs test/component.test.mjs test/poller.test.mjs",
+    "poll": "node sauce-poller.mjs"
+  }
+}

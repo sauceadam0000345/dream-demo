@@ -1,0 +1,13 @@
+{
+  "id": "cc33dd44ee55ff6677889900aa11bb22",
+  "status": "FAILED",
+  "passed": false,
+  "name": "test_search_autocomplete",
+  "os_name": "Android",
+  "os_version": "14.0",
+  "device": "Google Pixel 8",
+  "tags": ["search", "flaky"],
+  "error": "TimeoutException: element not visible after 10s",
+  "build": "release-2026.09.19-build-482",
+  "data_type": "rdc"
+}
