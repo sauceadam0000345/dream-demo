@@ -1,12 +1,16 @@
-# RDC API Plugin — 60-Second Demo Script
+# RDC API Plugin — 2-Minute Demo Script
 
-Quick showcase of the `sauce-api-mcp-rdc` MCP plugin for Sauce Labs Real Device Cloud.
+A concise feature overview of the `sauce-api-mcp-rdc` MCP plugin for Sauce Labs Real Device Cloud.
+
+**How it works:** You type natural language into your AI assistant (Claude, Gemini, etc.) → the `sauce-api-mcp-rdc` MCP server translates that into deterministic API calls → the Sauce Labs RDC REST API returns live real-device data and session controls.
+
+**Context:** This demo is built from real customer conversations (JPMC, Disney, Home Depot, SAP). The pattern is always the same: developers want to stay in their toolbench — IDE + AI assistant — and they need *real* device telemetry and direct device control, not simulated data, to power their LLM workflows.
 
 ---
 
 ## Pre-Demo (5 sec)
 
-Ensure Claude Desktop (or Gemini CLI) is open with the RDC server connected.
+Ensure your AI assistant (Claude Desktop, VS Code Copilot, Gemini CLI, etc.) is open with the RDC server connected.
 
 ```
 Status bar should show: "Sauce API RDC" as an active MCP server.
@@ -16,143 +20,179 @@ Status bar should show: "Sauce API RDC" as an active MCP server.
 
 ## Demo Flow
 
-### 0:00–0:10 — The Hook
+### 0:00–0:15 — The Hook: "What's Actually Available?"
 
-**Say:** *"When you're about to run a mobile test, the first question is always: what devices are actually available right now?"*
+**🎤 Say:** *"When you're about to run a mobile test, the first question is always: what real devices are actually available right now — and what's their real operational state?"*
 
-**Type:**
+**💬 Prompt** *(type into the AI assistant chat):*
 ```
-What Android devices are available in us-west-1?
+What private devices are available to me right now?
 ```
 
-**Screen shows:** Claude calls `get_real_device_status` and returns a live list of real Android devices (Pixel 8, Galaxy S24, etc.) with OS versions and availability.
+**📺 Screen shows:** The AI assistant calls `list_device_status` with `privateOnly=true` and returns your allocated private devices — real hardware with availability states (AVAILABLE, IN_USE, CLEANING, MAINTENANCE, REBOOTING, OFFLINE). No guesswork, no shared public pool.
+
+> **Talking point:** These are your dedicated devices — not shared, not simulated. You get real hardware telemetry through live session APIs. And your private fleet always shows up first.
 
 ---
 
-### 0:10–0:25 — Deep Dive
+### 0:15–0:35 — Deep Dive: "Show Me the Real Device"
 
-**Say:** *"I can drill down instantly. Show me the details for the Pixel 8."*
+**🎤 Say:** *"I can drill down instantly. Show me my private Galaxy A51 — I want to know what I'm working with before I schedule anything."*
 
-**Type:**
+**💬 Prompt** *(type into the AI assistant chat):*
 ```
-Show me the details for Pixel 8
+Show me the status of my Galaxy A51
 ```
 
-**Screen shows:** Device resolution, OS version, API level, whether it's currently free or in use.
+**📺 Screen shows:** `list_device_status` with `deviceName=Galaxy A51` returns your private device with its current state (AVAILABLE, REBOOTING, CLEANING, etc.). The AI assistant may suggest allocating it.
+
+> **Talking point:** This is the "emulator gap." We run on real chips, real batteries, real thermal profiles. That operational reality is what feeds better tests — and better AI insights.
 
 ---
 
-### 0:25–0:40 — Real Jobs, Real Data
+### 0:35–0:55 — Reserve & Control: "I Want This Device"
 
-**Say:** *"I just ran an Appium test. Let me check how it did — without opening a browser."*
+**🎤 Say:** *"I'm ready to test. Allocate my Galaxy A51 — I want a live session on real hardware."*
 
-**Type:**
+**💬 Prompt** *(type into the AI assistant chat):*
 ```
-Show my recent RDC jobs
+Allocate my Galaxy A51 device
 ```
 
-**Screen shows:** `get_real_device_jobs` returns the latest real-device test runs with pass/fail status, duration, and device used.
+**📺 Screen shows:** `allocate_device_and_create_session` returns a session ID, device allocation status, and session state (PENDING → CREATING → ACTIVE). The device is allocated and ready for control.
+
+> **Talking point:** Same authentication as your CI/CD pipeline. Same audit trail. But now you're controlling it from your IDE or AI assistant — no dashboard context switching.
 
 ---
 
-### 0:40–0:55 — Asset Retrieval
+### 0:55–1:20 — Real Telemetry, Real Time: "What's the Device Actually Doing?"
 
-**Say:** *"That one failed. I need the logs — right here in the chat."*
+**🎤 Say:** *"While my device session is active, I need real telemetry. What's the current session state and device info?"*
 
-**Type:**
+**💬 Prompt** *(type into the AI assistant chat):*
 ```
-Get the logs for my most recent failed RDC job
+Get the details for my active device session
 ```
 
-**Screen shows:** Claude calls `get_specific_real_device_job_asset`, returns a download link to the device logs and session video.
+**📺 Screen shows:** `get_session_details` returns real-time session info: device model, OS version, session state, and runtime context pulled live from the device.
+
+**🎤 Say:** *"Now let me install my app with network capture enabled so I can inspect traffic during the test."*
+
+**💬 Prompt** *(type into the AI assistant chat):*
+```
+Install my app with network capture enabled
+```
+
+*(The AI assistant will call `install_app_from_storage` with `features={"networkCapture": true}`.)*
+
+**📺 Screen shows:** App installation queued on the device. Network capture is enabled as an instrumentation feature.
+
+> **Talking point:** This is where RDC stands apart. You get live device control — install apps, enable network capture, open URLs, execute shell commands — all while the session is running. Not when it ends. That real-time operational data is the "AI fuel" that makes your LLM insights actually meaningful.
 
 ---
 
-### 0:55–1:00 — The Close
+### 1:20–1:45 — Device Control: "Drive the Device from My Assistant"
 
-**Say:** *"No dashboard clicks. No context switching. Just ask."*
+**🎤 Say:** *"I want to open a URL directly on the device — right from my chat."*
 
-**Screen shows:** All four answers still visible in the chat thread.
+**💬 Prompt** *(type into the AI assistant chat):*
+```
+Open https://example.com on my active device
+```
+
+**📺 Screen shows:** `open_url_or_deeplink` returns success. The URL is opened on the real device browser.
+
+**🎤 Say:** *"Now let me run an adb shell command to pull real device info and inspect storage."*
+
+**💬 Prompt** *(type into the AI assistant chat):*
+```
+Run `getprop ro.product.model; getprop ro.build.version.release; ls /sdcard` on my Android device
+```
+
+**📺 Screen shows:** `execute_shell_command` proxies the adb command and returns real output from the device — model (`Galaxy A51`), OS version, and the `/sdcard` directory listing.
+
+> **Talking point:** Before, you'd wait for the test to end, then dig through a UI. Now you control the device live, run shell commands, proxy HTTP requests, and catch issues in context. The data is deterministic and ready for your LLM to analyze.
 
 ---
 
-## Key Talking Points
+### 1:45–2:00 — Cleanup & Close: "Sauce Gives You the Data. The LLM Makes It a Story."
+
+**🎤 Say:** *"When I'm done, I close the session and optionally reboot the device for the next run."*
+
+**💬 Prompt** *(type into the AI assistant chat):*
+```
+Close my active session and reboot the device
+```
+
+**📺 Screen shows:** `close_device_session` with `rebootDevice=true` releases the session and triggers a device reboot.
+
+> **Talking point:** No dashboard clicks. No context switching. Just ask. Sauce Labs gives you the real device telemetry and control, and your LLM turns it into actionable insight — whether that's a JIRA narrative, an executive scorecard, or a root-cause analysis.
+
+---
+
+## Key Talking Points Summary
 
 | Beat | Point |
 |------|-------|
-| **Hook** | Live device catalog eliminates "guess and check" before scheduling tests |
-| **Drill-down** | Resolution, OS, API level — all programmatically accessible |
-| **Jobs** | RDC test results surfaced inside the AI assistant, not buried in a web UI |
-| **Assets** | Logs and videos fetched via API — shareable links generated instantly |
-| **Close** | Natural language replaces 4+ dashboard navigations |
+| **Hook** | Live real device catalog eliminates "guess and check" before allocating sessions |
+| **Drill-down** | Filter by device name, OS, availability state — all programmatically accessible |
+| **Allocate** | Same auth as CI/CD, same audit trail, but controlled from IDE/AI assistant |
+| **Telemetry** | Real-time session details, app installs with instrumentation features — the "AI fuel" emulators can't provide |
+| **Control** | Open URLs, run shell commands, proxy HTTP — drive the device live from chat |
+| **Cleanup** | Close and reboot devices programmatically, keeping the fleet healthy |
+| **Close** | "Sauce gives you the data, the LLM makes it a story" — integrated into the developer workflow |
 
 ---
 
 ## On-Screen Checklist
 
-- [ ] Claude Desktop window visible
+- [ ] AI assistant window visible (Claude, VS Code Copilot, Gemini, etc.)
 - [ ] `.mcp.json` shows `sauce-api-mcp-rdc` configured (optional quick flash)
-- [ ] Each query typed live (don't paste all at once)
-- [ ] Tool call badge visible ("Sauce API RDC" icon in Claude)
-- [ ] Responses show real data, not mock text
+- [ ] Each 💬 **Prompt** typed live into the AI assistant chat (don't paste all at once)
+- [ ] Tool call badge visible ("Sauce API RDC" icon in your AI assistant)
+- [ ] 📺 **Screen shows** real data, not mock text
+- [ ] Emphasize: live device control vs. simulated data
+- [ ] Emphasize: no context switching, everything from the IDE/AI assistant
 
 ---
 
 ## Fallback Prompts
 
-If no recent jobs exist in the account:
+If no private devices or active sessions exist in the account, use these **💬 Prompts** instead:
 
 ```
-List available iPhone models
-```
-
-```
-What real devices are currently busy?
+List all available Android devices
 ```
 
 ```
-Show me RDC job history from the last 7 days
+Show me my active device sessions
+```
+
+```
+Allocate any available iPhone device
+```
+
+```
+List ongoing app installations for my session
 ```
 
 ---
 
-## Extended Demo: MCP + saucectl End-to-End
+## Job & Asset Queries (Core MCP Server)
 
-Show how device discovery flows directly into test execution.
+For querying RDC job history and downloading assets (logs, videos, HAR files), use the **`sauce-api-mcp` core server**:
 
-### Script
-
-**Say:** *"I found a device. Now I want to run tests on it — without touching the dashboard."*
-
-**Switch to terminal. Run:**
-```bash
-./scripts/demo_mcp_saucectl.sh
-```
-
-**Terminal shows:**
-1. **Device Discovery** — Python script queries RDC API and lists available Android/iOS devices
-2. **saucectl run** — Playwright web tests uploaded and executed on Sauce Labs VDC (Windows 11 + Chromium/Firefox/WebKit)
-3. **pytest run** — Appium mobile tests executed on the chosen real device (e.g., Google Pixel 8)
-4. **Job Analysis** — Recent RDC jobs fetched and displayed with pass/fail status
-
-**Say:** *"That single script did four things: discovered devices, ran web tests via saucectl, ran mobile tests via pytest, and pulled the results back — all from the terminal."*
-
-### Files Used
-
-| File | Purpose |
-|------|---------|
-| `scripts/demo_mcp_device_discovery.py` | Standalone MCP-style RDC device query |
-| `scripts/demo_mcp_saucectl.sh` | Orchestrates full discovery → run → analysis flow |
-| `.sauce/config.yml` | saucectl config for Playwright web tests |
-| `tests-playwright/flower-shop.spec.js` | Playwright e2e tests for Flower Shop web app |
-| `tests-e2e/test_android_app.py` | Appium tests for mobile (run via pytest, not saucectl) |
-
-### Key Talking Point
-
-`saucectl` runs the tests you specify, but it cannot browse the live RDC catalog. The MCP plugin (or the standalone discovery script) fills that gap: **discover** with MCP, **execute** with saucectl, **analyze** with MCP again.
+| Capability | Core Server Tool |
+|------------|-----------------|
+| Show recent RDC jobs | `get_real_device_jobs` |
+| Get job details | `get_specific_real_device_job` |
+| Download logs/video | `get_specific_real_device_job_asset` |
+| List all devices (read-only) | `get_devices_status` |
+| Get device details by ID | `get_specific_device` |
+| List private devices | `get_private_devices` |
 
 ---
 
 ## One-Liner Summary
 
-> The RDC API plugin turns Sauce Labs Real Device Cloud into a conversational interface — query devices, jobs, and test assets without leaving your AI assistant.
+> The RDC API plugin turns Sauce Labs Real Device Cloud into a conversational control interface — discover devices, allocate live sessions, install apps, enable network capture, run shell commands, and proxy HTTP traffic without leaving your AI assistant. Real hardware, real time, real simple.

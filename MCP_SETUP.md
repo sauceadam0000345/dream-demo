@@ -223,10 +223,16 @@ The AI assistant will automatically call the appropriate MCP tools based on your
 
 | Tool | Description |
 |------|-------------|
-| `get_real_device_jobs` | Active RDC test jobs |
-| `get_specific_real_device_job` | Detailed RDC job info |
-| `get_specific_real_device_job_asset` | Download job assets (logs, videos) |
-| `get_real_device_status` | Real device availability |
+| `list_device_status` | Real device availability (filter by state, privateOnly, deviceName) |
+| `list_device_sessions` | Active and recent device sessions |
+| `get_session_details` | Session info and device context |
+| `allocate_device_and_create_session` | Allocate a real device and start a session |
+| `close_device_session` | Close and release a device session |
+| `install_app_from_storage` | Install app with instrumentation features |
+| `launch_app` | Launch an installed app |
+| `open_url_or_deeplink` | Open a URL in browser or deeplink |
+| `execute_shell_command` | Run adb shell commands (Android) |
+| `forward_http_get/post/put/delete/options/head` | Proxy HTTP through the device |
 
 Full tool list is available in the MCP server's resource manifest when connected to Claude/Gemini.
 

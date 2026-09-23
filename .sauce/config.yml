@@ -10,22 +10,28 @@ playwright:
 suites:
   - name: "Flower Shop - Chromium"
     testMatch:
-      - "tests-playwright/.*.spec.js"
+      - "tests-playwright/flower-shop.spec.js"
     platformName: "Windows 11"
     params:
       browserName: chromium
   - name: "Flower Shop - Firefox"
     testMatch:
-      - "tests-playwright/.*.spec.js"
+      - "tests-playwright/flower-shop.spec.js"
     platformName: "Windows 11"
     params:
       browserName: firefox
   - name: "Flower Shop - WebKit"
     testMatch:
-      - "tests-playwright/.*.spec.js"
+      - "tests-playwright/flower-shop.spec.js"
     platformName: "macOS 13"
     params:
       browserName: webkit
+  - name: "SauceDemo - Chromium"
+    testMatch:
+      - "tests-playwright/saucedemo.spec.js"
+    platformName: "Windows 11"
+    params:
+      browserName: chromium
 rootDir: .
 artifacts:
   download:

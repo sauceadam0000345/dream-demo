@@ -337,7 +337,7 @@ This project bridges that gap with the **`sauce-api-mcp-rdc` MCP server**, which
 | Capability | `saucectl` | `sauce-api-mcp-rdc` |
 |------------|-----------|---------------------|
 | Run tests on a known device | ✅ Define in `.sauce/config.yml` | ❌ Not a test runner |
-| Browse live RDC device catalog | ❌ No built-in command | ✅ `get_real_device_status` |
+| Browse live RDC device catalog | ❌ No built-in command | ✅ `list_device_status` |
 | Check device availability, OS, resolution | ❌ Not supported | ✅ Natural language or direct tool call |
 | Download job logs/videos post-run | ✅ Via `artifacts.download` config | ✅ `get_specific_real_device_job_asset` |
 
