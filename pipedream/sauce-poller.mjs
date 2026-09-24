@@ -64,24 +64,23 @@ export async function listRecentJobs({
   const base = `https://api.${region}.saucelabs.com/v1/rdc/jobs`;
   const headers = { Authorization: sauceAuthHeader(username, accessKey) };
   const byId = new Map();
-  let offset = 0;
+  // /v1/rdc/jobs is 1-indexed: offset=1 is the newest job, and offset=0 is
+  // answered with HTTP 500 (seen live 2026-09-24).
+  let offset = 1;
 
   for (let page = 0; page < maxPages; page++) {
-    let res = await fetchImpl(`${base}?limit=${pageSize}&offset=${offset}`, { headers });
-    // Some Sauce endpoints are 1-indexed and reject offset=0. Ids are deduped,
-    // so any overlap from the retry is harmless.
-    if (!res.ok && offset === 0 && res.status >= 400 && res.status < 500 && res.status !== 401 && res.status !== 403) {
-      offset = 1;
-      res = await fetchImpl(`${base}?limit=${pageSize}&offset=${offset}`, { headers });
-    }
+    const res = await fetchImpl(`${base}?limit=${pageSize}&offset=${offset}`, { headers });
     if (!res.ok) throw new Error(`Sauce job list failed: HTTP ${res.status}`);
 
     const json = await res.json();
     const entities = Array.isArray(json?.entities) ? json.entities : [];
     for (const job of entities) if (job?.id && !byId.has(job.id)) byId.set(job.id, job);
 
+    // metaData.moreAvailable has been observed as false on a full page, so a
+    // full page also counts as "there may be more".
+    const mayHaveMore = Boolean(json?.metaData?.moreAvailable) || entities.length >= pageSize;
     const oldest = Math.min(...entities.map((j) => Number(j.creation_time ?? j.start_time ?? Infinity)));
-    if (!entities.length || !json?.metaData?.moreAvailable || oldest < sinceMs - LONG_JOB_GRACE_MS) break;
+    if (!entities.length || !mayHaveMore || oldest < sinceMs - LONG_JOB_GRACE_MS) break;
     offset += entities.length;
   }
 

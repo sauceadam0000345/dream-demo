@@ -38,7 +38,7 @@ function passedJob(id, agoMin) {
 }
 
 /** Mock of GET /v1/rdc/jobs (list, newest first) and GET /v1/rdc/jobs/:id. */
-function createMockSauce(jobs, { oneIndexed = false } = {}) {
+function createMockSauce(jobs, { oneIndexed = true, reportMore = true } = {}) {
   const calls = [];
   const sorted = () => [...jobs].sort((a, b) => b.creation_time - a.creation_time);
   const res = (status, body) => ({ ok: status < 300, status, json: async () => body });
@@ -54,12 +54,12 @@ function createMockSauce(jobs, { oneIndexed = false } = {}) {
     if (u.pathname === "/v1/rdc/jobs") {
       const limit = Number(u.searchParams.get("limit"));
       const offset = Number(u.searchParams.get("offset"));
-      if (oneIndexed && offset < 1) return res(400, { message: "offset must be >= 1" });
+      if (oneIndexed && offset < 1) return res(500, { message: "Oops, something went wrong." });
       const start = oneIndexed ? offset - 1 : offset;
       const all = sorted();
       // The list endpoint returns a slimmer object than the job record.
       const entities = all.slice(start, start + limit).map(({ tags, build, ...slim }) => slim);
-      return res(200, { entities, metaData: { moreAvailable: start + limit < all.length, offset, limit, sortDirection: "DESCENDING" } });
+      return res(200, { entities, metaData: { moreAvailable: reportMore && start + limit < all.length, offset, limit, sortDirection: "DESCENDING" } });
     }
     throw new Error(`mock sauce: unhandled ${url}`);
   }
@@ -203,10 +203,19 @@ test("listRecentJobs: pages until the window is passed, then stops", async () =>
   assert.ok(pages < 13, `should stop well before paging all 250 jobs (made ${pages} calls)`);
 });
 
-test("listRecentJobs: falls back to a 1-indexed offset if offset=0 is rejected", async () => {
-  const sauce = createMockSauce([failedJob("a", 1), failedJob("b", 2)], { oneIndexed: true });
+test("listRecentJobs: starts at offset 1 (the endpoint is 1-indexed and 500s on offset=0)", async () => {
+  const sauce = createMockSauce([failedJob("a", 1), failedJob("b", 2)]);
   const out = await listRecentJobs({ username: "u", accessKey: "k", sinceMs: NOW - 30 * MIN, fetchImpl: sauce.fetchImpl });
   assert.deepEqual(out.map((j) => j.id).sort(), ["a", "b"]);
+  assert.match(sauce.calls[0].search, /offset=1\b/);
+});
+
+test("listRecentJobs: keeps paging on a full page even when moreAvailable says false", async () => {
+  const jobs = [];
+  for (let i = 0; i < 50; i++) jobs.push(passedJob(`j${i}`, i));
+  const sauce = createMockSauce(jobs, { reportMore: false });
+  const out = await listRecentJobs({ username: "u", accessKey: "k", sinceMs: NOW - 30 * MIN, fetchImpl: sauce.fetchImpl, pageSize: 20 });
+  assert.equal(out.length, 31);
 });
 
 test("listRecentJobs: bad credentials fail loudly instead of looking like a quiet window", async () => {
