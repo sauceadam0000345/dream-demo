@@ -4,6 +4,8 @@
 # Setup (repo Settings -> Secrets and variables -> Actions):
 #   Secrets:   SAUCE_USERNAME, SAUCE_ACCESS_KEY, LINEAR_API_KEY, LINEAR_TEAM_ID
 #   Variables (optional): SAUCE_REGION, SAUCE_LOOKBACK_MINUTES, SAUCE_FLAKY_TAGS, LINEAR_ISSUE_LABELS
+#   Variable POLLER_LIVE=true turns on real filing for scheduled runs. Until it
+#   is set, scheduled runs are dry runs (triage + log only).
 #
 # Scheduled runs only fire from the default branch, and GitHub may start them
 # late or drop one under load - the 30-minute lookback covers that. Overlapping
@@ -56,4 +58,7 @@ jobs:
           SAUCE_LOOKBACK_MINUTES: ${{ inputs.lookback_minutes || vars.SAUCE_LOOKBACK_MINUTES }}
           SAUCE_FLAKY_TAGS: ${{ vars.SAUCE_FLAKY_TAGS }}
           LINEAR_ISSUE_LABELS: ${{ vars.LINEAR_ISSUE_LABELS }}
-          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && 'true' || 'false' }}
+          # Manual runs follow the dry_run checkbox. Scheduled runs stay dry
+          # until the repo variable POLLER_LIVE is set to "true" - that
+          # variable is the on/off switch for filing real Linear issues.
+          DRY_RUN: ${{ (github.event_name == 'workflow_dispatch' && inputs.dry_run) || (github.event_name == 'schedule' && vars.POLLER_LIVE != 'true') }}
